@@ -222,11 +222,13 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	//HAL_UART_Receive_DMA(&huart1, myRx,BUFF_SIZE);
+	HAL_UART_Receive_DMA(&huart1, myRx,BUFF_SIZE);
+	//HAL_UART_Transmit_DMA(&huart1,myTx,BUFF_SIZE);
 	uint8_t i=0;
 	myTx[0] = 0x0a;
 	myTx[1] = 0x0b;
 	myTx[2] = 0x0c;
+	//HAL_UART_Transmit_DMA(&huart1,myTx,BUFF_SIZE);
   while (1)
   {
   //s =  Read_ADS2(&y,&x); //TODO: change x and y in func
@@ -235,13 +237,20 @@ int main(void)
 	myTx[0] = i;
 	myTx[1] = i+1;
 	myTx[2] = i+2;
-
-	HAL_Delay(10);
-	sprintf(str,"%02x,%02x,%02x",myTx[0],myTx[1],myTx[2]);
-	lcd_put_str2(555,435,str,WHITE,BLACK,segoe_ui);
-	//HAL_UART_Transmit(&huart1,myTx,BUFF_SIZE,10);
 	HAL_UART_Transmit_DMA(&huart1,myTx,BUFF_SIZE);
+	//HAL_UART_Transmit(&huart1,myTx,BUFF_SIZE,10);
 
+	//lcd_put_str2(555,435,(char*) myTx,WHITE,BLACK,segoe_ui);
+
+	sprintf(str,"TX: ");
+	lcd_put_str2(555,380,str,WHITE,BLACK,segoe_ui);
+	sprintf(str,"%02x,%02x,%02x",myTx[0],myTx[1],myTx[2]);
+	lcd_put_str2(650,380,str,WHITE,BLACK,segoe_ui);
+
+	//HAL_UART_Transmit_IT(&huart1,myTx,BUFF_SIZE);
+
+
+	HAL_Delay(1000);
 	s =  tp_read3(&x,&y);
 	if (s==1) {
 		handleTouch(x,y);
@@ -285,7 +294,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV16;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
   {
@@ -347,7 +356,7 @@ static void MX_USART1_UART_Init(void)
 
   /* USER CODE END USART1_Init 1 */
   huart1.Instance = USART1;
-  huart1.Init.BaudRate = 115200;
+  huart1.Init.BaudRate = 9600;
   huart1.Init.WordLength = UART_WORDLENGTH_8B;
   huart1.Init.StopBits = UART_STOPBITS_1;
   huart1.Init.Parity = UART_PARITY_NONE;
@@ -487,7 +496,7 @@ void sendCmd(uint8_t id,uint16_t val){
 	myTx[0] = id;
 	myTx[1] = val/16;
 	myTx[2] = val%16;
-	HAL_UART_Transmit(&huart1,myTx,BUFF_SIZE,10);
+	//HAL_UART_Transmit(&huart1,myTx,BUFF_SIZE,10);
 	//sprintf(str,"%02x,%02x,%02x",myTx[0],myTx[1],myTx[2]);
 	//lcd_put_str2(555,435,str,WHITE,BLACK,segoe_ui);
 }
@@ -630,7 +639,7 @@ void putTexts() {
 		lcd_put_str2(250,5,str,WHITE,BLACK,segoe_ui);
 		sprintf(str,"%5u",pos_cnt);
 		lcd_put_str2(490,270,str,WHITE,BLACK,segoe_ui);
-
+/*
 		sprintf(str,"x: %6u",x);
 		lcd_put_str2(605,310,str,WHITE,BLACK,segoe_ui);
 		sprintf(str,"y: %6u",y);
@@ -638,6 +647,7 @@ void putTexts() {
 
 		sprintf(str,"Meysam Shahbazi");
 		lcd_put_str2(555,380,str,WHITE,BLACK,segoe_ui);
+		*/
 
 }
 
@@ -650,9 +660,17 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
   	xx++;
 
-	//lcd_put_str2(555,380,(char *) myRx,WHITE,BLACK,segoe_ui);
+  	sprintf(str,"RX-%u: ",xx);
+  	lcd_put_str2(555,435,str,WHITE,BLACK,segoe_ui);
 	sprintf(str,"%02x,%02x,%02x",myRx[0],myRx[1],myRx[2]);
+  	lcd_put_str2(650,435,str,WHITE,BLACK,segoe_ui);
+
+/*
+  	sprintf(str,"%u",xx);
+  	lcd_put_str2(555,380,str,WHITE,BLACK,segoe_ui);
+	//lcd_put_str2(555,380,(char *) myRx,WHITE,BLACK,segoe_ui);
 	lcd_put_str2(555,435,str,WHITE,BLACK,segoe_ui);
+	*/
 
 }
 
