@@ -1,0 +1,8 @@
+tp.c:4:10:ADS_Read_AD	40	static
+tp.c:21:10:ADS_Read_XY	64	static
+tp.c:49:9:Read_ADS	24	static
+tp.c:59:9:Read_ADS2	32	static
+tp.c:77:9:tp_read	40	static
+tp.c:130:9:tp_read2	40	static
+tp.c:189:9:tp_read3	40	static
+tp.c:251:6:Init_TOUCH	4	static

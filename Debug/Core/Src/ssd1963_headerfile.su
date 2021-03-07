@@ -1,0 +1,13 @@
+ssd1963_headerfile.c:7:6:SSD1963_WriteCommand	16	static
+ssd1963_headerfile.c:14:6:SSD1963_WriteData	16	static
+ssd1963_headerfile.c:21:6:SSD1963_Init	16	static
+ssd1963_headerfile.c:121:6:SSD1963_SetArea	24	static
+ssd1963_headerfile.c:151:6:SSD1963_ClearScreen	24	static
+ssd1963_headerfile.c:167:6:GLCD_SetPixel	16	static
+ssd1963_headerfile.c:210:6:LCD_Show_Image	32	static
+ssd1963_headerfile.c:224:6:LCD_Show_Image2	32	static
+ssd1963_headerfile.c:237:6:lcd_draw_vertical_line	32	static
+ssd1963_headerfile.c:248:6:lcd_draw_horizental_line	32	static
+ssd1963_headerfile.c:259:6:lcd_draw_rect	32	static
+ssd1963_headerfile.c:315:10:str_whidth	32	static
+ssd1963_headerfile.c:338:9:lcd_put_str2	48	static
