@@ -127,6 +127,7 @@ SPI_HandleTypeDef hspi2;
 
 UART_HandleTypeDef huart1;
 DMA_HandleTypeDef hdma_usart1_rx;
+DMA_HandleTypeDef hdma_usart1_tx;
 
 SRAM_HandleTypeDef hsram1;
 
@@ -218,25 +219,29 @@ int main(void)
 
 	drawMainMenu();
   /* USER CODE END 2 */
-	myTx[0] = 0x0b;
-	myTx[1] = 0xc;
-	myTx[2] = 0xd;
-	HAL_UART_Receive_DMA(&huart1,myRx,BUFF_SIZE);
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+	//HAL_UART_Receive_DMA(&huart1, myRx,BUFF_SIZE);
+	uint8_t i=0;
+	myTx[0] = 0x0a;
+	myTx[1] = 0x0b;
+	myTx[2] = 0x0c;
   while (1)
   {
   //s =  Read_ADS2(&y,&x); //TODO: change x and y in func
-  /*
-	myTx[0] = myTx[0]*2  ;
-	myTx[1] = myTx[1]*2 ;
-	myTx[2] = myTx[2]*2;
-	*/
-	HAL_Delay(200);
+
+	i++;
+	myTx[0] = i;
+	myTx[1] = i+1;
+	myTx[2] = i+2;
+
+	HAL_Delay(10);
 	sprintf(str,"%02x,%02x,%02x",myTx[0],myTx[1],myTx[2]);
 	lcd_put_str2(555,435,str,WHITE,BLACK,segoe_ui);
-	HAL_UART_Transmit(&huart1,myTx,BUFF_SIZE,10);
+	//HAL_UART_Transmit(&huart1,myTx,BUFF_SIZE,10);
+	HAL_UART_Transmit_DMA(&huart1,myTx,BUFF_SIZE);
+
 	s =  tp_read3(&x,&y);
 	if (s==1) {
 		handleTouch(x,y);
@@ -280,7 +285,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV16;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
   {
@@ -369,6 +374,9 @@ static void MX_DMA_Init(void)
   __HAL_RCC_DMA1_CLK_ENABLE();
 
   /* DMA interrupt init */
+  /* DMA1_Channel4_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel4_IRQn);
   /* DMA1_Channel5_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
@@ -480,8 +488,8 @@ void sendCmd(uint8_t id,uint16_t val){
 	myTx[1] = val/16;
 	myTx[2] = val%16;
 	HAL_UART_Transmit(&huart1,myTx,BUFF_SIZE,10);
-	sprintf(str,"%02x,%02x,%02x",myTx[0],myTx[1],myTx[2]);
-	lcd_put_str2(555,435,str,WHITE,BLACK,segoe_ui);
+	//sprintf(str,"%02x,%02x,%02x",myTx[0],myTx[1],myTx[2]);
+	//lcd_put_str2(555,435,str,WHITE,BLACK,segoe_ui);
 }
 
 void drawMainMenu() {
@@ -640,9 +648,11 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
   UNUSED(huart);
 
-xx++;
+  	xx++;
 
 	//lcd_put_str2(555,380,(char *) myRx,WHITE,BLACK,segoe_ui);
+	sprintf(str,"%02x,%02x,%02x",myRx[0],myRx[1],myRx[2]);
+	lcd_put_str2(555,435,str,WHITE,BLACK,segoe_ui);
 
 }
 
