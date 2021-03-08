@@ -10,5 +10,5 @@ main.c:495:6:sendCmd	16	static
 main.c:504:6:drawMainMenu	16	static
 main.c:547:6:handleTouch	24	static
 main.c:627:6:putTexts	16	static
-main.c:656:6:HAL_UART_RxCpltCallback	24	static
-main.c:684:6:Error_Handler	4	static,ignoring_inline_asm
+main.c:656:6:HAL_UART_RxCpltCallback	16	static
+main.c:685:6:Error_Handler	4	static,ignoring_inline_asm

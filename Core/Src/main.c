@@ -659,11 +659,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   UNUSED(huart);
 
   	xx++;
-
+/*
   	sprintf(str,"RX-%u: ",xx);
   	lcd_put_str2(555,435,str,WHITE,BLACK,segoe_ui);
 	sprintf(str,"%02x,%02x,%02x",myRx[0],myRx[1],myRx[2]);
   	lcd_put_str2(650,435,str,WHITE,BLACK,segoe_ui);
+  	*/
 
 /*
   	sprintf(str,"%u",xx);
