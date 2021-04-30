@@ -17,7 +17,7 @@
 void drawMainMenu() {
 	SSD1963_ClearScreen(COLOR_BLACK);
 
-	myPlot(GEAR_X,GEAR_Y,COLOR_GRAY,BLACK, gear_ch);
+	myPlot(GEAR_X,GEAR_Y,COLOR_GRAY,COLOR_WHITE, gear_ch);
 	myPlot(GEAR_DEC_X,GEAR_DEC_Y,COLOR_SILVER,BLACK, dec_ch);
 	myPlot(GEAR_INC_X,GEAR_INC_Y,COLOR_SILVER,BLACK, inc_ch);
 

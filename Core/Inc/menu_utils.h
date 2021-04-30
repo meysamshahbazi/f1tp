@@ -16,10 +16,10 @@
 #define GEAR_X 5
 #define GEAR_Y 5
 #define GEAR_DEC_X 200
-#define GEAR_DEC_Y 165
+#define GEAR_DEC_Y 150
 
 #define GEAR_INC_X 200
-#define GEAR_INC_Y 15
+#define GEAR_INC_Y 30
 
 
 #define REEL_X 5

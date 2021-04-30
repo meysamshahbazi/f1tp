@@ -74,6 +74,8 @@
 /* Private variables ---------------------------------------------------------*/
 SPI_HandleTypeDef hspi2;
 
+TIM_HandleTypeDef htim1;
+
 UART_HandleTypeDef huart1;
 DMA_HandleTypeDef hdma_usart1_rx;
 DMA_HandleTypeDef hdma_usart1_tx;
@@ -99,6 +101,8 @@ uint16_t xx =0;
 uint8_t myTx[BUFF_SIZE] ;
 uint8_t myRx[BUFF_SIZE] ;
 
+uint8_t i=0;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -108,6 +112,7 @@ static void MX_DMA_Init(void);
 static void MX_FSMC_Init(void);
 static void MX_SPI2_Init(void);
 static void MX_USART1_UART_Init(void);
+static void MX_TIM1_Init(void);
 /* USER CODE BEGIN PFP */
 void sendCmd(uint8_t id,uint16_t val);
 void handleTouch(uint16_t x,uint16_t y);
@@ -117,6 +122,16 @@ uint8_t inRegion(uint16_t x,uint16_t y,uint16_t x0,uint16_t y0, uint16_t dx,uint
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	i ++;
+	sprintf(str,"y: %6u",i);
+
+	// sprintf(str,"Meysam Shahbazi");
+	lcd_put_str2(310,440,str,WHITE,BLACK,segoe_ui);
+
+
+}
 
 /* USER CODE END 0 */
 
@@ -147,12 +162,13 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
-	MX_GPIO_Init();
-	MX_DMA_Init();
-	MX_FSMC_Init();
-	MX_SPI2_Init();
-	MX_USART1_UART_Init();
-	/* USER CODE BEGIN 2 */
+  MX_GPIO_Init();
+  MX_DMA_Init();
+  MX_FSMC_Init();
+  MX_SPI2_Init();
+  MX_USART1_UART_Init();
+  MX_TIM1_Init();
+  /* USER CODE BEGIN 2 */
 	SSD1963_Init();
 	Init_TOUCH();
 	SSD1963_ClearScreen(COLOR_AQUA);
@@ -168,13 +184,14 @@ int main(void)
 
 
 	drawMainMenu();
+	HAL_TIM_Base_Start_IT(&htim1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	HAL_UART_Receive_DMA(&huart1, myRx,BUFF_SIZE);
 	//HAL_UART_Transmit_DMA(&huart1,myTx,BUFF_SIZE);
-	uint8_t i=0;
+
 /*
 	myTx[0] = GEAR_ID;
 	myTx[1] = 0x0;
@@ -187,7 +204,7 @@ int main(void)
   //s =  Read_ADS2(&y,&x); //TODO: change x and y in func
 
 
-	HAL_Delay(10);
+	//HAL_Delay(10);
 	s =  tp_read3(&x,&y);
 	if (s==1) {
 		handleTouch(x,y);
@@ -274,6 +291,59 @@ static void MX_SPI2_Init(void)
   /* USER CODE BEGIN SPI2_Init 2 */
 
   /* USER CODE END SPI2_Init 2 */
+
+}
+
+/**
+  * @brief TIM1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM1_Init(void)
+{
+
+  /* USER CODE BEGIN TIM1_Init 0 */
+
+  /* USER CODE END TIM1_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_SlaveConfigTypeDef sSlaveConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM1_Init 1 */
+
+  /* USER CODE END TIM1_Init 1 */
+  htim1.Instance = TIM1;
+  htim1.Init.Prescaler = 7200;
+  htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim1.Init.Period = 10000;
+  htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim1.Init.RepetitionCounter = 0;
+  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sSlaveConfig.SlaveMode = TIM_SLAVEMODE_DISABLE;
+  sSlaveConfig.InputTrigger = TIM_TS_ITR0;
+  if (HAL_TIM_SlaveConfigSynchro(&htim1, &sSlaveConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM1_Init 2 */
+
+  /* USER CODE END TIM1_Init 2 */
 
 }
 
@@ -446,7 +516,7 @@ void sendCmd(uint8_t id,uint16_t val){
 
 
 void handleTouch(uint16_t x,uint16_t y) {
-		if (inRegion (x,y,GEAR_X,GEAR_Y,gear_ch[1],gear_ch[1])) {
+		if (inRegion (x,y,GEAR_X+30,GEAR_Y+30,gear_ch[1]-80,gear_ch[1]-80)) {
 			sendCmd(GEAR_ID,gear_cnt);
 			myPlot(GEAR_X,GEAR_Y,COLOR_RED,COLOR_BLACK, gear_ch);
 		}

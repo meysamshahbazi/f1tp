@@ -1,17 +1,17 @@
 #include "stm32f1xx_hal.h"
-#define ERR_RANGE 100 //��Χ  // 50
-#define READ_TIMES 16 //��ȡ���� // 15
-#define LOST_VAL 4	  //����ֵ
-#define NUM_READ 16
+#define ERR_RANGE 5 //��Χ  // 50
+#define READ_TIMES 64 //��ȡ���� // 15
+#define LOST_VAL 16	  //����ֵ
+#define NUM_READ 1
 #define CMD_RDX 	0xD0
 #define CMD_RDY		0x90
 #define CMD_RDZ1	0xB0	
 #define CMD_RDZ2	0xF0
 
-#define  tp_pres_thr 1000
+#define  tp_pres_thr 700
 
 #define tp_x_min			108
-#define tp_x_max			1951
+#define tp_x_max			1951 // 1951
 #define tp_y_min			154
 #define tp_y_max			1821
 
