@@ -155,13 +155,13 @@ int main(void)
 	/* USER CODE BEGIN 2 */
 	SSD1963_Init();
 	Init_TOUCH();
-	SSD1963_ClearScreen(COLOR_TORGU);
+	SSD1963_ClearScreen(COLOR_AQUA);
 	LCD_Show_Image(250,100,(uint16_t *) iran);
 
 	sprintf(str,"Made in Iran");
 	uint16_t x0 = 0;
 	x0 = (TFT_WIDTH - str_whidth(str,segoe_ui) ) /2;
-	lcd_put_str2( x0 ,420,str,WHITE,COLOR_TORGU,segoe_ui);
+	lcd_put_str2( x0 ,420,str,WHITE,COLOR_AQUA,segoe_ui);
 
 	HAL_Delay(1000);
 
@@ -450,71 +450,71 @@ void handleTouch(uint16_t x,uint16_t y) {
 			sendCmd(GEAR_ID,gear_cnt);
 			myPlot(GEAR_X,GEAR_Y,COLOR_RED,COLOR_BLACK, gear_ch);
 		}
-		else if ( inRegion(x,y,GEAR_INC_X,GEAR_INC_Y,inc_ch,60) ){
+		else if ( inRegion(x,y,GEAR_INC_X,GEAR_INC_Y,inc_ch[1],inc_ch[1]) ){
 			gear_cnt ++;
 			//sendCmd(GEAR_ID,gear_cnt);
 		}
-		else if ( inRegion(x,y,GEAR_DEC_X,GEAR_DEC_Y,60,60) ){
+		else if ( inRegion(x,y,GEAR_DEC_X,GEAR_DEC_Y,dec_ch[1],dec_ch[1]) ){
 			if (gear_cnt >0 ) {
 				gear_cnt --;
 				//sendCmd(GEAR_ID,gear_cnt);
 			}
 		}
-		else if ( inRegion(x,y,ZOOMIN_X,ZOOMIN_Y,70,70) ) {
+		else if ( inRegion(x,y,ZOOMIN_X,ZOOMIN_Y,zoomin_ch[1],zoomin_ch[1]) ) {
 			zoom_cnt ++;
 			sendCmd(ZOOM_IN_ID,zoom_cnt);
 		}
-		else if ( inRegion(x,y,ZOONOUT_X,ZOOMOUT_Y,70,70) ){
+		else if ( inRegion(x,y,ZOONOUT_X,ZOOMOUT_Y,zoomout_ch[1],zoomin_ch[1]) ){
 			zoom_cnt --;
 			sendCmd(ZOOM_OUT_ID,zoom_cnt);
 
 		}
-		else if ( inRegion(x,y,FOUCOSP_X,FOUCOSP_Y,70,70) ){
+		else if ( inRegion(x,y,FOUCOSP_X,FOUCOSP_Y,focusp_ch[1],focusp_ch[1]) ){
 			foucos_cnt ++;
 			sendCmd(FOUCOS_IN_ID,foucos_cnt);
 		}
-		else if ( inRegion(x,y,FOUCOSN_X,FOUCOSN_Y,70,70) ){
+		else if ( inRegion(x,y,FOUCOSN_X,FOUCOSN_Y,focusn_ch[1],focusn_ch[1]) ){
 			foucos_cnt --;
 			sendCmd(FOUCOS_OUT_ID,foucos_cnt);
 
 		}
 
-		else if ( inRegion(x,y,LIGHTUP_X,LIGHTUP_Y,130,130) ){
+		else if ( inRegion(x,y,LIGHTUP_X,LIGHTUP_Y,lightup_ch[1],lightup_ch[1]) ){
 			light_cnt ++;
 			sendCmd(LIGHT_UP_ID,light_cnt);
 		}
-		else if ( inRegion(x,y,LIGHTDOWN_X,LIGHTDOWN_Y,130,130) ) {
+		else if ( inRegion(x,y,LIGHTDOWN_X,LIGHTDOWN_Y,lightdown_ch[1],lightdown_ch[1]) ) {
 			light_cnt --;
 			sendCmd(LIGHT_DOWN_ID,light_cnt);
 
 		}
 
-		else if ( inRegion(x,y,RIGHT_X,RIGHT_Y,60,60) ){
+		else if ( inRegion(x,y,RIGHT_X,RIGHT_Y,right_ch[1],right_ch[1]) ){
 			motor_cnt ++;
 			sendCmd(RIGHT_ID,motor_cnt);
 
 		}
-		else if ( inRegion(x,y,LEFT_X,LEFT_Y,60,60) ){
+		else if ( inRegion(x,y,LEFT_X,LEFT_Y,left_ch[1],left_ch[1]) ){
 			motor_cnt --;
 			sendCmd(LEFT_ID,motor_cnt);
 
 		}
 
-		else if ( inRegion(x,y,UP_X,UP_Y,60,60) ){
+		else if ( inRegion(x,y,UP_X,UP_Y,up_ch[1],up_ch[1]) ){
 			pos_cnt ++;
 			sendCmd(UP_ID,pos_cnt);
 		}
-		else if ( inRegion(x,y,DOWN_X,DOWN_Y,60,60) ){
+		else if ( inRegion(x,y,DOWN_X,DOWN_Y,down_ch[1],down_ch[1]) ){
 			pos_cnt --;
 			sendCmd(DOWN_ID,pos_cnt);
 		}
 
-		else if ( inRegion(x,y,FLIPH_X,FLIPH_Y,120,120) ){
+		else if ( inRegion(x,y,FLIPH_X,FLIPH_Y,fliph_ch[1],fliph_ch[1]) ){
 			if (fliph_cnt ==0) fliph_cnt = 1;
 			else fliph_cnt = 0;
 			sendCmd(FLIPH_ID,fliph_cnt);
 		}
-		else if ( inRegion(x,y,FLIPV_X,FLIPV_Y,120,120) ){
+		else if ( inRegion(x,y,FLIPV_X,FLIPV_Y,fliph_ch[1],fliph_ch[1]) ){
 			if (flipv_cnt ==0) flipv_cnt = 1;
 			else flipv_cnt = 0;
 			sendCmd(FLIPV_ID,flipv_cnt);
@@ -525,17 +525,17 @@ void handleTouch(uint16_t x,uint16_t y) {
 
 void putTexts() {
 		char str[80];
-/*
+
 		sprintf(str,"%5u",gear_cnt);
-		lcd_put_str2(90,190,str,WHITE,BLACK,segoe_ui);
+		lcd_put_str2(180,100,str,WHITE,BLACK,segoe_ui);
 
 		sprintf(str,"%5u",zoom_cnt);
-		lcd_put_str2(90,300,str,WHITE,BLACK,segoe_ui);
+		lcd_put_str2(700,5,str,WHITE,BLACK,segoe_ui);
 
 		sprintf(str,"%5u",foucos_cnt);
-		lcd_put_str2(90,425,str,WHITE,BLACK,segoe_ui);
+		lcd_put_str2(700,125,str,WHITE,BLACK,segoe_ui);
 		sprintf(str,"%5u",light_cnt);
-		lcd_put_str2(420,460,str,WHITE,BLACK,segoe_ui);
+		lcd_put_str2(700,260,str,WHITE,BLACK,segoe_ui);
 		sprintf(str,"%5u",motor_cnt);
 		lcd_put_str2(250,5,str,WHITE,BLACK,segoe_ui);
 		sprintf(str,"%5u",pos_cnt);
@@ -545,10 +545,10 @@ void putTexts() {
 		lcd_put_str2(605,310,str,WHITE,BLACK,segoe_ui);
 		sprintf(str,"y: %6u",y);
 		lcd_put_str2(605,342,str,WHITE,BLACK,segoe_ui);
-
+*/
 		sprintf(str,"Meysam Shahbazi");
-		lcd_put_str2(555,380,str,WHITE,BLACK,segoe_ui);
-		*/
+		lcd_put_str2(360,440,str,WHITE,BLACK,segoe_ui);
+
 
 }
 
