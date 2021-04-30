@@ -1,7 +1,7 @@
 #include "stm32f1xx_hal.h"
-#define ERR_RANGE 4 //Îó²î·¶Î§  // 50
-#define READ_TIMES 16 //¶ÁÈ¡´ÎÊý // 15
-#define LOST_VAL 4	  //¶ªÆúÖµ
+#define ERR_RANGE 100 //ï¿½ï¿½î·¶Î§  // 50
+#define READ_TIMES 16 //ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ // 15
+#define LOST_VAL 4	  //ï¿½ï¿½ï¿½ï¿½Öµ
 #define NUM_READ 16
 #define CMD_RDX 	0xD0
 #define CMD_RDY		0x90

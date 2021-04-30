@@ -94,11 +94,15 @@ void SSD1963_Init (void)
 	SSD1963_WriteCommand(SSD1963_SET_PWM_CONF);
 	SSD1963_WriteData(0x12);
 	SSD1963_WriteData(0xFF);   // Set 0xFF for full and 0x00 for off
-	SSD1963_WriteData(0x01);
+	SSD1963_WriteData(0x01); // 0x01
 	SSD1963_WriteData(0x00);
 	SSD1963_WriteData(0x00);
 	SSD1963_WriteData(0x00);
+
+
 	
+
+
 	// GPIO0,1,2,3 is output
 	SSD1963_WriteCommand(SSD1963_SET_GPIO_CONF);
 	SSD1963_WriteData(0x0F);
@@ -173,7 +177,7 @@ void GLCD_SetPixel(uint16_t x, uint16_t y, uint16_t color)
 }
 //=============================================================================
 /*******************************************************************************
- Display_Str: Display String   Input: X¡Y, Color, Mode, String  
+ Display_Str: Display String   Input: Xï¿½Y, Color, Mode, String  
 *******************************************************************************/
 /*
 void Display_Str(unsigned short x0, unsigned short y0, unsigned long Color,uint16_t Bl_Color,char *s)

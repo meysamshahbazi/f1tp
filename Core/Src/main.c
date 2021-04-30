@@ -26,6 +26,9 @@
 #include "tp.h"
 #include "img1.h"
 #include "gear.h"
+#include "myplot.h"
+#include  "menu_utils.h"
+
 #include <stdio.h>
 #include "segoeui18.h"
 #include "inc.h"
@@ -58,61 +61,25 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define GEAR_ID 		0x01
-#define ZOOM_ID 		0x02
-#define FOUCOS_ID 	0x03
-#define POS_ID 			0x04
-#define MOTOR_ID 		0x05
-#define LIGHT_ID		0x06
-#define FLIPH_ID		0x07
-#define FLIPV_ID		0x08
-
-#define GEAR_X 59
-#define GEAR_Y 15
-#define GEAR_DEC_X 15
-#define GEAR_DEC_Y 165
-
-#define GEAR_INC_X 175
-#define GEAR_INC_Y 165
-#define CAMERA_X 340
-#define CAMERA_Y 90
-#define LEFT_X 265
-#define LEFT_Y 135
-
-#define RIGHT_X 475
-#define RIGHT_Y 135
-
-#define UP_X 370
-#define UP_Y 15
-
-#define DOWN_X 370
-#define DOWN_Y 225
-
-#define ZOONOUT_X 160
-#define ZOOMOUT_Y 265
-#define ZOOMIN_X 20
-#define ZOOMIN_Y 265
-
-#define LIGHTUP_X 410
-#define LIGHTUP_Y 325
-
-#define LIGHTDOWN_X 260
-#define LIGHTDOWN_Y 325
-
-#define FLIPV_X 615
-#define FLIPV_Y 15
+#define GEAR_ID 		    0x01
+#define ZOOM_OUT_ID 		0x02
+#define ZOOM_IN_ID          0x03
+#define FOUCOS_OUT_ID 		0x04
+#define FOUCOS_IN_ID        0x05
+#define LEFT_ID 			0x06
+#define RIGHT_ID            0x07
+#define UP_ID               0x08
+#define DOWN_ID             0x09
+#define LIGHT_UP_ID		    0x0a
+#define LIGHT_DOWN_ID       0x0b
+#define FLIPH_ID		    0x0c
+#define FLIPV_ID		    0x0d
 
 
-#define FLIPH_X 615
-#define FLIPH_Y 165
 
-#define FOUCOSP_X 20
-#define FOUCOSP_Y 385
 
-#define FOUCOSN_X 160
-#define FOUCOSN_Y 385
 
-#define BUFF_SIZE 3
+#define BUFF_SIZE 4
 
 
 /* USER CODE END PD */
@@ -133,6 +100,7 @@ SRAM_HandleTypeDef hsram1;
 
 /* USER CODE BEGIN PV */
 char str[80];
+
 uint16_t x;
 uint16_t y;
 
@@ -159,11 +127,9 @@ static void MX_FSMC_Init(void);
 static void MX_SPI2_Init(void);
 static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
-uint8_t inRegion(uint16_t x,uint16_t y,uint16_t x0,uint16_t y0, uint16_t dx,uint16_t dy);
 void sendCmd(uint8_t id,uint16_t val);
-void drawMainMenu();
 void handleTouch(uint16_t x,uint16_t y);
-void putTexts();
+;
 
 /* USER CODE END PFP */
 
@@ -199,12 +165,12 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_DMA_Init();
-  MX_FSMC_Init();
-  MX_SPI2_Init();
-  MX_USART1_UART_Init();
-  /* USER CODE BEGIN 2 */
+	MX_GPIO_Init();
+	MX_DMA_Init();
+	MX_FSMC_Init();
+	MX_SPI2_Init();
+	MX_USART1_UART_Init();
+	/* USER CODE BEGIN 2 */
 	SSD1963_Init();
 	Init_TOUCH();
 	SSD1963_ClearScreen(COLOR_TORGU);
@@ -217,6 +183,8 @@ int main(void)
 
 	HAL_Delay(1000);
 
+
+
 	drawMainMenu();
   /* USER CODE END 2 */
 
@@ -225,32 +193,19 @@ int main(void)
 	HAL_UART_Receive_DMA(&huart1, myRx,BUFF_SIZE);
 	//HAL_UART_Transmit_DMA(&huart1,myTx,BUFF_SIZE);
 	uint8_t i=0;
-	myTx[0] = 0x0a;
-	myTx[1] = 0x0b;
-	myTx[2] = 0x0c;
+/*
+	myTx[0] = GEAR_ID;
+	myTx[1] = 0x0;
+	myTx[2] = 0x02;
+	myTx[3] = 0;
+	*/
 	//HAL_UART_Transmit_DMA(&huart1,myTx,BUFF_SIZE);
   while (1)
   {
   //s =  Read_ADS2(&y,&x); //TODO: change x and y in func
 
-	i++;
-	myTx[0] = i;
-	myTx[1] = i+1;
-	myTx[2] = i+2;
-	HAL_UART_Transmit_DMA(&huart1,myTx,BUFF_SIZE);
-	//HAL_UART_Transmit(&huart1,myTx,BUFF_SIZE,10);
 
-	//lcd_put_str2(555,435,(char*) myTx,WHITE,BLACK,segoe_ui);
-
-	sprintf(str,"TX: ");
-	lcd_put_str2(555,380,str,WHITE,BLACK,segoe_ui);
-	sprintf(str,"%02x,%02x,%02x",myTx[0],myTx[1],myTx[2]);
-	lcd_put_str2(650,380,str,WHITE,BLACK,segoe_ui);
-
-	//HAL_UART_Transmit_IT(&huart1,myTx,BUFF_SIZE);
-
-
-	HAL_Delay(1000);
+	HAL_Delay(10);
 	s =  tp_read3(&x,&y);
 	if (s==1) {
 		handleTouch(x,y);
@@ -486,7 +441,8 @@ static void MX_FSMC_Init(void)
 
 uint8_t inRegion(uint16_t x,uint16_t y,uint16_t x0,uint16_t y0, uint16_t dx,uint16_t dy) {
 	// if x,y is in region of x0,y0 -> x0+dx,y0+dy return 1 oth. return 0
-	if (x> x0 && x<x0+dx && y > y0 && y<y0+dy)
+#define BOUND 10
+	if (x> x0 + BOUND && x<x0+dx - BOUND && y > y0 + BOUND && y<y0+dy-BOUND)
 		return 1;
 	else
 		return 0;
@@ -494,120 +450,81 @@ uint8_t inRegion(uint16_t x,uint16_t y,uint16_t x0,uint16_t y0, uint16_t dx,uint
 
 void sendCmd(uint8_t id,uint16_t val){
 	myTx[0] = id;
-	myTx[1] = val/16;
-	myTx[2] = val%16;
-	//HAL_UART_Transmit(&huart1,myTx,BUFF_SIZE,10);
+	myTx[1] = val/256;
+	myTx[2] = val%256;
+	myTx[3] = myTx[0] + myTx[1] + myTx[2];
+
+
+
+	HAL_UART_Transmit(&huart1,myTx,BUFF_SIZE,10);
 	//sprintf(str,"%02x,%02x,%02x",myTx[0],myTx[1],myTx[2]);
 	//lcd_put_str2(555,435,str,WHITE,BLACK,segoe_ui);
 }
 
-void drawMainMenu() {
-	SSD1963_ClearScreen(COLOR_BLACK);
 
-	LCD_Show_Image(GEAR_X,GEAR_Y,(uint16_t *) gear);
-
-	LCD_Show_Image(GEAR_DEC_X,GEAR_DEC_Y,(uint16_t *) dec);
-	LCD_Show_Image(GEAR_INC_X,GEAR_INC_Y,(uint16_t *) inc);
-
-
-
-	LCD_Show_Image(CAMERA_X,CAMERA_Y,(uint16_t *) camera);
-	LCD_Show_Image(LEFT_X,LEFT_Y,(uint16_t *) left);
-	LCD_Show_Image(RIGHT_X,RIGHT_Y,(uint16_t *) right);
-	LCD_Show_Image(UP_X,UP_Y,(uint16_t *) up);
-	LCD_Show_Image(DOWN_X,DOWN_Y,(uint16_t *) down);
-
-
-	LCD_Show_Image(ZOOMIN_X,ZOOMIN_Y,(uint16_t *) zoomin);
-	LCD_Show_Image(ZOONOUT_X,ZOOMOUT_Y,(uint16_t *) zoomout);
-
-	LCD_Show_Image(LIGHTUP_X,LIGHTUP_Y,(uint16_t *) lightup);
-	LCD_Show_Image(LIGHTDOWN_X,LIGHTDOWN_Y,(uint16_t *) lightdown);
-
-	LCD_Show_Image(FLIPH_X,FLIPH_Y,(uint16_t *) fliphor);
-
-	LCD_Show_Image(FLIPV_X,FLIPV_Y,(uint16_t *) flipver);
-
-	LCD_Show_Image(FOUCOSN_X,FOUCOSN_Y,(uint16_t *) foucosn);
-	LCD_Show_Image(FOUCOSP_X,FOUCOSP_Y,(uint16_t *) foucosp);
-
-	lcd_draw_vertical_line(250,1,480,1,WHITE);
-	lcd_draw_vertical_line(550,1,480,1,WHITE);
-
-	lcd_draw_horizental_line(1,240,250,1,WHITE);
-
-	lcd_draw_horizental_line(1,360,250,1,WHITE);
-
-	lcd_draw_horizental_line(250,300,550,1,WHITE);
-
-	lcd_draw_horizental_line(550,150,250,1,WHITE);
-
-}
 
 void handleTouch(uint16_t x,uint16_t y) {
-		if ( inRegion(x,y,GEAR_INC_X,GEAR_INC_Y,60,60) ){
-			gear_cnt ++;
+		if (inRegion (x,y,GEAR_X,GEAR_Y,135,135)) {
 			sendCmd(GEAR_ID,gear_cnt);
+			myPlot(GEAR_X,GEAR_Y,BLUE,WHITE, gear_ch);
+		}
+		else if ( inRegion(x,y,GEAR_INC_X,GEAR_INC_Y,60,60) ){
+			gear_cnt ++;
+			//sendCmd(GEAR_ID,gear_cnt);
 		}
 		else if ( inRegion(x,y,GEAR_DEC_X,GEAR_DEC_Y,60,60) ){
 			if (gear_cnt >0 ) {
 				gear_cnt --;
-				sendCmd(GEAR_ID,gear_cnt);
+				//sendCmd(GEAR_ID,gear_cnt);
 			}
 		}
 		else if ( inRegion(x,y,ZOOMIN_X,ZOOMIN_Y,70,70) ) {
 			zoom_cnt ++;
-			sendCmd(ZOOM_ID,zoom_cnt);
+			sendCmd(ZOOM_IN_ID,zoom_cnt);
 		}
 		else if ( inRegion(x,y,ZOONOUT_X,ZOOMOUT_Y,70,70) ){
-			if (zoom_cnt >0) {
-				zoom_cnt --;
-				sendCmd(ZOOM_ID,zoom_cnt);
-			}
+			zoom_cnt --;
+			sendCmd(ZOOM_OUT_ID,zoom_cnt);
+
 		}
 		else if ( inRegion(x,y,FOUCOSP_X,FOUCOSP_Y,70,70) ){
 			foucos_cnt ++;
-			sendCmd(FOUCOS_ID,foucos_cnt);
+			sendCmd(FOUCOS_IN_ID,foucos_cnt);
 		}
 		else if ( inRegion(x,y,FOUCOSN_X,FOUCOSN_Y,70,70) ){
-			if ( foucos_cnt >0) {
-				foucos_cnt --;
-				sendCmd(FOUCOS_ID,foucos_cnt);
-			}
+			foucos_cnt --;
+			sendCmd(FOUCOS_OUT_ID,foucos_cnt);
+
 		}
 
 		else if ( inRegion(x,y,LIGHTUP_X,LIGHTUP_Y,130,130) ){
 			light_cnt ++;
-			sendCmd(LIGHT_ID,light_cnt);
+			sendCmd(LIGHT_UP_ID,light_cnt);
 		}
 		else if ( inRegion(x,y,LIGHTDOWN_X,LIGHTDOWN_Y,130,130) ) {
-			if (light_cnt >0) {
-				light_cnt --;
-				sendCmd(LIGHT_ID,light_cnt);
-			}
+			light_cnt --;
+			sendCmd(LIGHT_DOWN_ID,light_cnt);
+
 		}
 
 		else if ( inRegion(x,y,RIGHT_X,RIGHT_Y,60,60) ){
 			motor_cnt ++;
-			sendCmd(MOTOR_ID,motor_cnt);
+			sendCmd(RIGHT_ID,motor_cnt);
 
 		}
 		else if ( inRegion(x,y,LEFT_X,LEFT_Y,60,60) ){
-			if (motor_cnt >0) {
-				motor_cnt --;
-				sendCmd(MOTOR_ID,motor_cnt);
-			}
+			motor_cnt --;
+			sendCmd(LEFT_ID,motor_cnt);
+
 		}
 
 		else if ( inRegion(x,y,UP_X,UP_Y,60,60) ){
 			pos_cnt ++;
-			sendCmd(POS_ID,pos_cnt);
+			sendCmd(UP_ID,pos_cnt);
 		}
 		else if ( inRegion(x,y,DOWN_X,DOWN_Y,60,60) ){
-			if (pos_cnt > 0) {
-				pos_cnt --;
-				sendCmd(POS_ID,pos_cnt);
-			}
+			pos_cnt --;
+			sendCmd(DOWN_ID,pos_cnt);
 		}
 
 		else if ( inRegion(x,y,FLIPH_X,FLIPH_Y,120,120) ){
@@ -625,8 +542,10 @@ void handleTouch(uint16_t x,uint16_t y) {
 }
 
 void putTexts() {
+		char str[80];
+/*
 		sprintf(str,"%5u",gear_cnt);
-		lcd_put_str2(90,175,str,WHITE,BLACK,segoe_ui);
+		lcd_put_str2(90,190,str,WHITE,BLACK,segoe_ui);
 
 		sprintf(str,"%5u",zoom_cnt);
 		lcd_put_str2(90,300,str,WHITE,BLACK,segoe_ui);
@@ -653,6 +572,8 @@ void putTexts() {
 
 
 
+
+
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 
@@ -660,10 +581,10 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
   	xx++;
 
-  	sprintf(str,"RX-%u: ",xx);
-  	lcd_put_str2(555,435,str,WHITE,BLACK,segoe_ui);
-	sprintf(str,"%02x,%02x,%02x",myRx[0],myRx[1],myRx[2]);
-  	lcd_put_str2(650,435,str,WHITE,BLACK,segoe_ui);
+  	//sprintf(str,"RX-%u: ",xx);
+  	//lcd_put_str2(555,435,str,WHITE,BLACK,segoe_ui);
+	//sprintf(str,"%02x,%02x,%02x",myRx[0],myRx[1],myRx[2]);
+  	//lcd_put_str2(650,435,str,WHITE,BLACK,segoe_ui);
   	HAL_UART_Receive_DMA(&huart1, myRx,BUFF_SIZE);
 
 /*
