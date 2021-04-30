@@ -24,33 +24,15 @@
 /* USER CODE BEGIN Includes */
 #include "ssd1963_headerfile.h"
 #include "tp.h"
-#include "img1.h"
-#include "gear.h"
+
 #include "myplot.h"
 #include  "menu_utils.h"
 
 #include <stdio.h>
 #include "segoeui18.h"
-#include "inc.h"
-#include "dec.h"
-#include "camera.h"
+
 #include "iran.h"
-#include "up.h"
-#include "down.h"
 
-#include "left.h"
-#include "right.h"
-
-#include "zoomin.h"
-#include "zoomout.h"
-#include "lightup.h"
-#include "lightdown.h"
-
-#include "fliphver.h"
-#include "fliphor.h"
-
-#include "foucosn.h"
-#include "foucosp.h"
 
 /* USER CODE END Includes */
 
@@ -129,7 +111,7 @@ static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
 void sendCmd(uint8_t id,uint16_t val);
 void handleTouch(uint16_t x,uint16_t y);
-;
+uint8_t inRegion(uint16_t x,uint16_t y,uint16_t x0,uint16_t y0, uint16_t dx,uint16_t dy);
 
 /* USER CODE END PFP */
 
@@ -464,11 +446,11 @@ void sendCmd(uint8_t id,uint16_t val){
 
 
 void handleTouch(uint16_t x,uint16_t y) {
-		if (inRegion (x,y,GEAR_X,GEAR_Y,135,135)) {
+		if (inRegion (x,y,GEAR_X,GEAR_Y,gear_ch[1],gear_ch[1])) {
 			sendCmd(GEAR_ID,gear_cnt);
-			myPlot(GEAR_X,GEAR_Y,BLUE,WHITE, gear_ch);
+			myPlot(GEAR_X,GEAR_Y,COLOR_RED,COLOR_BLACK, gear_ch);
 		}
-		else if ( inRegion(x,y,GEAR_INC_X,GEAR_INC_Y,60,60) ){
+		else if ( inRegion(x,y,GEAR_INC_X,GEAR_INC_Y,inc_ch,60) ){
 			gear_cnt ++;
 			//sendCmd(GEAR_ID,gear_cnt);
 		}

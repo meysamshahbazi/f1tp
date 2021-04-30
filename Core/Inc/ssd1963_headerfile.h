@@ -12,8 +12,8 @@
 // Configuration
 //=============================================================================
 
-#define LCD_RAM    *(__IO uint16_t *) ((uint32_t)0x60020000)    	//µØÖ·¼Ä´æÆ÷
-#define LCD_REG    *(__IO uint16_t *) ((uint32_t)0x60000000)	 	//Ö¸Áî¼Ä´æÆ÷
+#define LCD_RAM    *(__IO uint16_t *) ((uint32_t)0x60020000)    	//ï¿½ï¿½Ö·ï¿½Ä´ï¿½ï¿½ï¿½
+#define LCD_REG    *(__IO uint16_t *) ((uint32_t)0x60000000)	 	//Ö¸ï¿½ï¿½Ä´ï¿½ï¿½ï¿½
 
 //===================
 #define TFT_FPS 30ULL
@@ -171,9 +171,9 @@
 #define COLOR24_YELLOW 	0xFFFF00
 
 // Create a set of RGB565 colors that can be used directly within code
-#define COLOR_AQUA TRANSLATE24BIT_TO_RGB565(COLOR24_AQUA)
-#define COLOR_GREY	TRANSLATE24BIT_TO_RGB565(COLOR24_GREY)
-#define COLOR_NAVY	TRANSLATE24BIT_TO_RGB565(COLOR24_NAVY) 	
+#define COLOR_AQUA 		TRANSLATE24BIT_TO_RGB565(COLOR24_AQUA)
+#define COLOR_GREY		TRANSLATE24BIT_TO_RGB565(COLOR24_GREY)
+#define COLOR_NAVY		TRANSLATE24BIT_TO_RGB565(COLOR24_NAVY)
 #define COLOR_SILVER 	TRANSLATE24BIT_TO_RGB565(COLOR24_SILVER)
 #define COLOR_BLACK 	TRANSLATE24BIT_TO_RGB565(COLOR24_BLACK) 	
 #define COLOR_GREEN 	TRANSLATE24BIT_TO_RGB565(COLOR24_GREEN) 	
