@@ -43,19 +43,27 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define GEAR_ID 		    0x01
-#define ZOOM_OUT_ID 		0x02
-#define ZOOM_IN_ID          0x03
-#define FOUCOS_OUT_ID 		0x04
-#define FOUCOS_IN_ID        0x05
-#define LEFT_ID 			0x06
-#define RIGHT_ID            0x07
-#define UP_ID               0x08
-#define DOWN_ID             0x09
-#define LIGHT_UP_ID		    0x0a
-#define LIGHT_DOWN_ID       0x0b
-#define FLIPH_ID		    0x0c
-#define FLIPV_ID		    0x0d
+#define GEAR_ID 		    	0x01
+#define ZOOM_OUT_ID 			0x02
+#define ZOOM_IN_ID          	0x03
+#define FOUCOS_OUT_ID 			0x04
+#define FOUCOS_IN_ID        	0x05
+#define LEFT_ID 				0x06
+#define RIGHT_ID            	0x07
+#define UP_ID               	0x08
+#define DOWN_ID             	0x09
+#define LIGHT_UP_ID		    	0x0a
+#define LIGHT_DOWN_ID       	0x0b
+#define FLIPH_ID		    	0x0c
+#define FLIPV_ID		    	0x0d
+#define MODE_ONE_ID				0x0e
+#define MODE_TWO_ID				0x0f
+#define MODE_THREE_ID			0x10
+#define MODE_FOUR_ID			0x11
+#define SWIP_UP_ID				0x12
+#define SWIP_DOWN_ID			0x13
+#define SWIP_LR_ID				0x14
+
 
 
 
@@ -88,7 +96,7 @@ char str[80];
 uint16_t x;
 uint16_t y;
 
-uint16_t gear_cnt = 0;
+uint16_t gear_cnt = 94;
 uint16_t zoom_cnt = 0;
 uint16_t foucos_cnt = 0;
 uint16_t light_cnt = 0;
@@ -100,6 +108,24 @@ uint8_t s = 0;
 uint16_t xx =0;
 uint8_t myTx[BUFF_SIZE] ;
 uint8_t myRx[BUFF_SIZE] ;
+uint8_t reset_gear_icon_flg = 0;
+uint8_t reset_gear_icon_cnt = 0;
+uint8_t reset_zoomin_icon_flg = 0;
+uint8_t reset_zoomin_icon_cnt = 0;
+uint8_t reset_zoomout_icon_flg = 0;
+uint8_t reset_zoomout_icon_cnt = 0;
+
+uint8_t reset_focusin_icon_flg = 0;
+uint8_t reset_focusin_icon_cnt = 0;
+uint8_t reset_focusout_icon_flg = 0;
+uint8_t reset_focusout_icon_cnt = 0;
+
+uint8_t reset_irisin_icon_flg = 0;
+uint8_t reset_irisin_icon_cnt = 0;
+uint8_t reset_irisout_icon_flg = 0;
+uint8_t reset_irisout_icon_cnt = 0;
+
+
 
 uint8_t i=0;
 
@@ -124,11 +150,28 @@ uint8_t inRegion(uint16_t x,uint16_t y,uint16_t x0,uint16_t y0, uint16_t dx,uint
 /* USER CODE BEGIN 0 */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-	i ++;
-	sprintf(str,"y: %6u",i);
+	if (reset_gear_icon_flg ==1){
+		reset_gear_icon_cnt ++;
+		if (reset_gear_icon_cnt > 5) {
+			reset_gear_icon_cnt =0;
+			reset_gear_icon_flg =0;
+			myPlot(GEAR_X,GEAR_Y,COLOR_GRAY,COLOR_BLACK, gear_ch);
+		}
+	}
+
+	if (reset_zoomin_icon_flg ==1){
+		reset_zoomin_icon_cnt ++;
+		if (reset_zoomin_icon_cnt > 2) {
+			reset_zoomin_icon_cnt =0;
+			reset_zoomin_icon_flg =0;
+			myPlot(ZOOMIN_X,ZOOMIN_Y,COLOR_GRAY,COLOR_BLACK, zoomin_ch);
+		}
+	}
+	//i ++;
+	//sprintf(str,"y: %6u",i);
 
 	// sprintf(str,"Meysam Shahbazi");
-	lcd_put_str2(310,440,str,WHITE,BLACK,segoe_ui);
+	//lcd_put_str2(310,440,str,WHITE,BLACK,segoe_ui);
 
 
 }
@@ -516,19 +559,51 @@ void sendCmd(uint8_t id,uint16_t val){
 
 
 void handleTouch(uint16_t x,uint16_t y) {
-		if (inRegion (x,y,GEAR_X+30,GEAR_Y+30,gear_ch[1]-80,gear_ch[1]-80)) {
+		HAL_TIM_Base_Stop_IT(&htim1);
+
+		if (inRegion (x,y,GEAR_X,GEAR_Y,gear_ch[1],gear_ch[1])) {
 			sendCmd(GEAR_ID,gear_cnt);
 			myPlot(GEAR_X,GEAR_Y,COLOR_RED,COLOR_BLACK, gear_ch);
+			myPlot(SWIP_UP_X,SWIP_UP_Y,COLOR_YELLOW,BLACK, swip_up_ch);
+			myPlot(SWIP_DOWN_X,SWIP_DOWN_Y,COLOR_YELLOW,BLACK, swip_down_ch);
+			myPlot(SWIP_LEFT_RIGHT_X,SWIP_LEFT_RIGHT_Y,COLOR_YELLOW,BLACK, swip_left_right_ch);
+			reset_gear_icon_flg = 1;
 		}
 		else if ( inRegion(x,y,GEAR_INC_X,GEAR_INC_Y,inc_ch[1],inc_ch[1]) ){
 			gear_cnt ++;
-			//sendCmd(GEAR_ID,gear_cnt);
 		}
 		else if ( inRegion(x,y,GEAR_DEC_X,GEAR_DEC_Y,dec_ch[1],dec_ch[1]) ){
 			if (gear_cnt >0 ) {
 				gear_cnt --;
-				//sendCmd(GEAR_ID,gear_cnt);
 			}
+		}
+		else if (inRegion(x, y, REEL_X, REEL_Y,reel_ch[1], reel_ch[1])){
+			sendCmd(MODE_ONE_ID,0x01);
+			myPlot(REEL_X,REEL_Y,COLOR_RED,BLACK, reel_ch);
+			myPlot(TWO_X,TWO_Y,COLOR_BLUE,BLACK, two_ch);
+			myPlot(THREE_X,THREE_Y,COLOR_BLUE,BLACK, three_ch);
+			myPlot(FOUR_X,FOUR_Y,COLOR_BLUE,BLACK, four_ch);
+		}
+		else if (inRegion(x, y, TWO_X, TWO_Y, two_ch[1], two_ch[1])){
+			sendCmd(MODE_TWO_ID,0x01);
+			myPlot(TWO_X,TWO_Y,COLOR_RED,BLACK, two_ch);
+			myPlot(REEL_X,REEL_Y,COLOR_BLUE,BLACK, reel_ch);
+			myPlot(THREE_X,THREE_Y,COLOR_BLUE,BLACK, three_ch);
+			myPlot(FOUR_X,FOUR_Y,COLOR_BLUE,BLACK, four_ch);
+		}
+		else if (inRegion(x, y, THREE_X,THREE_Y,three_ch[1], three_ch[1])){
+			sendCmd(MODE_THREE_ID,0x01);
+			myPlot(THREE_X,THREE_Y,COLOR_RED,BLACK, three_ch);
+			myPlot(REEL_X,REEL_Y,COLOR_BLUE,BLACK, reel_ch);
+			myPlot(TWO_X,TWO_Y,COLOR_BLUE,BLACK, two_ch);
+			myPlot(FOUR_X,FOUR_Y,COLOR_BLUE,BLACK, four_ch);
+		}
+		else if (inRegion(x, y, FOUR_X, FOUR_Y, four_ch[1], four_ch[1])){
+			sendCmd(MODE_FOUR_ID, 0x01);
+			myPlot(FOUR_X,FOUR_Y,COLOR_RED,BLACK, four_ch);
+			myPlot(REEL_X,REEL_Y,COLOR_BLUE,BLACK, reel_ch);
+			myPlot(TWO_X,TWO_Y,COLOR_BLUE,BLACK, two_ch);
+			myPlot(THREE_X,THREE_Y,COLOR_BLUE,BLACK, three_ch);
 		}
 		else if ( inRegion(x,y,ZOOMIN_X,ZOOMIN_Y,zoomin_ch[1],zoomin_ch[1]) ) {
 			zoom_cnt ++;
@@ -580,17 +655,45 @@ void handleTouch(uint16_t x,uint16_t y) {
 		}
 
 		else if ( inRegion(x,y,FLIPH_X,FLIPH_Y,fliph_ch[1],fliph_ch[1]) ){
-			if (fliph_cnt ==0) fliph_cnt = 1;
-			else fliph_cnt = 0;
+			if (fliph_cnt ==0) {
+				myPlot(FLIPH_X,FLIPH_Y,COLOR_MAROON,BLACK, fliph_ch);
+				fliph_cnt = 1;
+			}
+			else {
+				myPlot(FLIPH_X,FLIPH_Y,COLOR_LIME,BLACK, fliph_ch);
+				fliph_cnt = 0;
+			}
 			sendCmd(FLIPH_ID,fliph_cnt);
+			HAL_Delay(200);
 		}
 		else if ( inRegion(x,y,FLIPV_X,FLIPV_Y,fliph_ch[1],fliph_ch[1]) ){
-			if (flipv_cnt ==0) flipv_cnt = 1;
-			else flipv_cnt = 0;
+			if (flipv_cnt ==0) {
+				flipv_cnt = 1;
+				myPlot(FLIPV_X,FLIPV_Y,COLOR_MAROON,BLACK, flipv_ch);
+			}
+			else {
+				myPlot(FLIPV_X,FLIPV_Y,COLOR_LIME,BLACK, flipv_ch);
+				flipv_cnt = 0;
+
+			}
 			sendCmd(FLIPV_ID,flipv_cnt);
+			HAL_Delay(200);
 		}
+		else if(inRegion(x, y, SWIP_DOWN_X, SWIP_DOWN_Y,swip_down_ch[1], swip_down_ch[1])){
+			sendCmd(SWIP_DOWN_ID,0x01);
+			myPlot(SWIP_UP_X,SWIP_UP_Y,COLOR_YELLOW,BLACK, swip_up_ch);
+			myPlot(SWIP_DOWN_X,SWIP_DOWN_Y,COLOR_AQUA,BLACK, swip_down_ch);
+			myPlot(SWIP_LEFT_RIGHT_X,SWIP_LEFT_RIGHT_Y,COLOR_YELLOW,BLACK, swip_left_right_ch);
 
+		}
+		else if (inRegion(x, y, SWIP_UP_X, SWIP_UP_Y,swip_up_ch[1] , swip_up_ch[1])){
+			sendCmd(SWIP_UP_ID,0x01);
+			myPlot(SWIP_UP_X,SWIP_UP_Y,COLOR_AQUA,BLACK, swip_up_ch);
+			myPlot(SWIP_DOWN_X,SWIP_DOWN_Y,COLOR_YELLOW,BLACK, swip_down_ch);
+			myPlot(SWIP_LEFT_RIGHT_X,SWIP_LEFT_RIGHT_Y,COLOR_YELLOW,BLACK, swip_left_right_ch);
 
+		}
+		HAL_TIM_Base_Start_IT(&htim1);
 }
 
 void putTexts() {
@@ -598,7 +701,7 @@ void putTexts() {
 
 		sprintf(str,"%5u",gear_cnt);
 		lcd_put_str2(180,100,str,WHITE,BLACK,segoe_ui);
-
+/*
 		sprintf(str,"%5u",zoom_cnt);
 		lcd_put_str2(700,5,str,WHITE,BLACK,segoe_ui);
 
@@ -610,14 +713,15 @@ void putTexts() {
 		lcd_put_str2(250,5,str,WHITE,BLACK,segoe_ui);
 		sprintf(str,"%5u",pos_cnt);
 		lcd_put_str2(490,270,str,WHITE,BLACK,segoe_ui);
+		*/
 /*
 		sprintf(str,"x: %6u",x);
 		lcd_put_str2(605,310,str,WHITE,BLACK,segoe_ui);
 		sprintf(str,"y: %6u",y);
 		lcd_put_str2(605,342,str,WHITE,BLACK,segoe_ui);
 */
-		sprintf(str,"Meysam Shahbazi");
-		lcd_put_str2(360,440,str,WHITE,BLACK,segoe_ui);
+		//sprintf(str,"Meysam Shahbazi");
+		//lcd_put_str2(360,440,str,WHITE,BLACK,segoe_ui);
 
 
 }
@@ -631,13 +735,15 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
   UNUSED(huart);
 
-  	xx++;
+  	/*xx++;
 
-  	//sprintf(str,"RX-%u: ",xx);
-  	//lcd_put_str2(555,435,str,WHITE,BLACK,segoe_ui);
-	//sprintf(str,"%02x,%02x,%02x",myRx[0],myRx[1],myRx[2]);
+  	sprintf(str,"RX-%u: ",xx);
+  	lcd_put_str2(555,435,str,WHITE,BLACK,segoe_ui);
+	sprintf(str,"%02x,%02x,%02x",myRx[0],myRx[1],myRx[2]);
+	lcd_put_str2(360,440,str,WHITE,BLACK,segoe_ui);
   	//lcd_put_str2(650,435,str,WHITE,BLACK,segoe_ui);
   	HAL_UART_Receive_DMA(&huart1, myRx,BUFF_SIZE);
+  	*/
 
 /*
   	sprintf(str,"%u",xx);

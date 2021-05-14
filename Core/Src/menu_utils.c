@@ -17,11 +17,11 @@
 void drawMainMenu() {
 	SSD1963_ClearScreen(COLOR_BLACK);
 
-	myPlot(GEAR_X,GEAR_Y,COLOR_GRAY,COLOR_WHITE, gear_ch);
+	myPlot(GEAR_X,GEAR_Y,COLOR_GRAY,COLOR_BLACK, gear_ch);
 	myPlot(GEAR_DEC_X,GEAR_DEC_Y,COLOR_SILVER,BLACK, dec_ch);
 	myPlot(GEAR_INC_X,GEAR_INC_Y,COLOR_SILVER,BLACK, inc_ch);
 
-	myPlot(REEL_X,REEL_Y,COLOR_GREEN,BLACK, reel_ch);
+	myPlot(REEL_X,REEL_Y,COLOR_BLUE,BLACK, reel_ch);
 
 	myPlot(TWO_X,TWO_Y,COLOR_BLUE,BLACK, two_ch);
 	myPlot(THREE_X,THREE_Y,COLOR_BLUE,BLACK, three_ch);
